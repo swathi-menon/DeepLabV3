@@ -1,0 +1,38 @@
+Source: 
+
+import os
+import glob
+import sys
+import ReLabelEd
+sys.path.append('./ReLabelEd/')
+from ImageLabelsAPI import *
+import os
+import numpy as np
+from PIL import Image
+
+
+# image folder path
+image_path = '.ReLabelEd/dataset'
+      
+
+if __name__ == '__main__':
+
+# read npz files using ImageLabelsAPI  
+    for filename in glob.glob(image_path + '/*.jpg'):           
+        lbl = ImageLabelsAPI.loadImageLabels(filename)
+        mask = np.array(lbl.img_lbl[:]).astype(np.uint8)   # 9 x W x H 
+ 
+# generate W x H x 3 image
+        mask = np.swapaxes(mask, 0,1)
+        mask = np.swapaxes(mask, 1,2)       
+        
+        mask2 = mask[:,:,0]*1 + mask[:,:,1]*2 + mask[:,:,2]*3 + mask[:,:,3]*4 + mask[:,:,4]*5 + mask[:,:,5]*6 + mask[:,:,6]*7 + mask[:,:,7]*8 + mask[:,:,8]*9
+        
+        mask2 = np.where(mask2>9, 0, mask2) 
+        mask = mask2
+
+
+# convert npz tp png 
+        indexed = mask.astype(dtype=np.uint8)   
+        im_indx = Image.fromarray(indexed)
+        im_indx.save(os.path.splitext(filename)[0] + '.png')
